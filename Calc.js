@@ -1,7 +1,9 @@
 //document Браузер создаёт DOM (Document Object Model) при загрузке страницы, складывает его в переменную document
 //addEventListener() Добавляет элементу действие, которое будет выполнено после срабатывания события
 document.addEventListener("DOMContentLoaded", ready);
-document.addEventListener("DOMContentLoaded", keyboardReady);
+/*todo: .addEventListener Добавляет элементу действие, которое будет 
+выполнено после срабатывания события. Например, н
+а клик мышки или нажатие клавиши.*/
 
 let buffer = 0;
 let bufOp = "";
@@ -43,8 +45,97 @@ function operation(num, op) {
   }
 }
 
-// Функция — это блок из различных команд
 function ready() {
+
+  function backSpace () {
+    buffer = 0;
+    bufOp = "";
+    lastNum = 0;
+    lastOp = "";
+    num = 0;
+    op = "";
+    inputField.value = "0";
+    scale();
+  }
+
+  function scale() { 
+    const str = inputField.value;
+    if (str.length > 7) {
+      inputField.style.fontSize = "2rem";
+    } else {
+      inputField.style.fontSize = "3rem";
+    }
+  }
+
+  function inputValue (input) {
+
+    switch (input) {
+          case "ъ": 
+          if (buffer != 0) {
+            inputField.value = buffer;
+          }
+          if (inputField.value[0] != "-") {
+            inputField.value = "-" + inputField.value;
+          } 
+          else {
+            inputField.value = inputField.value.substring(1);
+          }
+          break;
+
+          case "ё":
+          lastNum = Number(inputField.value);
+          operation(lastNum, input);
+          operation(lastNum, lastOp);
+          inputField.value =  buffer;
+          isBuffer = true;
+          break;
+
+          case "=":
+          case "Enter":
+            if (!isBuffer) {
+              lastNum = Number(inputField.value);
+            }
+            operation(lastNum, lastOp);
+            inputField.value = buffer;
+            isBuffer = true;
+            break;
+
+          default:
+            lastNum = Number(inputField.value);
+            if (!isBuffer) {
+              operation(lastNum, lastOp);
+            }
+            inputField.value = buffer;
+            bufOp = input;
+            isBuffer = true;
+            break;
+        }
+    }
+
+    function inputNumbers (input) {
+      scale();
+      isBuffer = false;
+    if (bufOp != "") {
+        inputField.value = "0";
+        lastOp = bufOp;
+        bufOp = "";
+      }
+      if (inputField.value === "0") {
+        if (input === ".") {
+          inputField.value = "0.";
+        } else {
+          inputField.value = input;
+        }
+      } else {
+        if (input === ".") {
+          if (!inputField.value.includes(".")) {
+            inputField.value += input;
+          }
+        } else {
+          inputField.value += input;
+        }
+      }
+    }
 
 // Здесь обращаемся к html странице ищем клавишу 
 const numberBtns = document.querySelectorAll(".btn-num"); 
@@ -68,33 +159,12 @@ const inputField = document.querySelector("#input-field");
   numberBtns.forEach((elem) => {
     // forEach - цикл по всем элементам массива кнопок с цифрами
     elem.addEventListener("click", () => {
+      
       if (document.querySelector(".btn_active") != null)
         document.querySelector(".btn_active").classList.remove("btn_active");
-      scale(); 
+      elem.classList.add("btn_active");
       // привязываем к обработчику событий анонимную функцию которая вводит цифры в поле для ввода
-      if (elem.innerHTML != ".") {
-        if (inputField.value == "0" || isBuffer) {
-          isBuffer = false;
-          inputField.value = elem.innerHTML;
-        } else {
-          inputField.value += elem.innerHTML;
-        }
-      } 
-      else {
-        const str = inputField.value;
-        if (!str.includes(".")) {
-          if (isBuffer) {
-            isBuffer = false;
-            inputField.value = "0.";
-          } else {
-            inputField.value += elem.innerHTML;
-          }
-        } 
-        else if (isBuffer) {
-          isBuffer = false;
-          inputField.value = "0.";
-        }
-      }
+      inputNumbers(elem.id)
     });
   });
 
@@ -102,44 +172,7 @@ const inputField = document.querySelector("#input-field");
 
   operationBtns.forEach((elem) => {
     elem.addEventListener("click", () => {
-      switch (elem.id) {
-        case "ъ": 
-          if (buffer != 0) {
-            inputField.value = buffer;
-          }
-     
-          if (inputField.value[0] != "-") {
-            inputField.value = "-" + inputField.value;
-          } 
-          else {
-            inputField.value = inputField.value.substring(1);
-          }
-          break;
-
-          case "=": 
-            if (!isBuffer) {
-              lastNum = Number(inputField.value);
-            }
-            operation(lastNum, bufOp);
-            inputField.value = buffer;
-            isBuffer = true;
-            break;
-  
-          case "ё":  
-            lastNum = Number(inputField.value);
-            operation(lastNum, elem.id);
-            inputField.value = lastNum;
-            isBuffer = false;
-            break;
-        
-          default: 
-            lastNum = Number(inputField.value);
-            operation(lastNum, bufOp);
-            inputField.value = buffer;
-            bufOp = elem.id;
-            isBuffer = true;
-            break;
-      }
+      inputValue(elem.id);
     });
 
     const AcBtn = document.querySelector(".AC");
@@ -147,119 +180,27 @@ const inputField = document.querySelector("#input-field");
     AcBtn.addEventListener("click", () => {
       if (document.querySelector(".btn_active") != null)
       document.querySelector(".btn_active").classList.remove("btn_active");
-      buffer = 0;
-      bufOp = "";
-      lastNum = 0;
-      lastOp = "";
-      num = 0;
-      op = "";
-      inputField.value = "0";
+      backSpace();
+      
     });
   });
 
 // масштабируем поле ввода.
-function scale() { 
-  const str = inputField.value;
-  if (str.length > 7) {
-    inputField.style.fontSize = "2rem";
-  } else {
-    inputField.style.fontSize = "3rem";
-  }
-}
-
-}
-// ввод с клавиатуры
-function keyboardReady() {
 
   const numbers = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "."];
   const action = ["+", "-", "*", "/", "ё", "ъ", "Enter", "="];
-  const inputField = document.querySelector("#input-field");
 
   
   // event вывод события которое он увидел
   document.addEventListener("keydown", function (event) {
-  if (numbers.includes(event.key)) {
-    isBuffer = false;
-    if (bufOp != "") {
-        inputField.value = "0";
-        lastOp = bufOp;
-        bufOp = "";
-      }
-      if (inputField.value === "0") {
-        if (event.key === ".") {
-          inputField.value = "0.";
-        } else {
-          inputField.value = event.key;
-        }
-      } 
-      else {
-        if (event.key === ".") {
-          if (!inputField.value.includes(".")) {
-            inputField.value += event.key;
-          }
-        } else {
-          inputField.value += event.key;
-        }
-      }
-    } 
-    
-    else {
-      if (action.includes(event.key)) {
-        switch (event.key) {
-          case "ъ": 
-          if (buffer != 0) {
-            inputField.value = buffer;
-          }
-     
-          if (inputField.value[0] != "-") {
-            inputField.value = "-" + inputField.value;
-          } 
-          else {
-            inputField.value = inputField.value.substring(1);
-          }
-          break;
-
-          case "ё":
-          lastNum = Number(inputField.value);
-          operation(lastNum, event.key);
-          operation(lastNum, lastOp);
-          inputField.value =  buffer;
-          isBuffer = true;
-          break;
-
-          case "Enter":
-            if (!isBuffer) {
-              lastNum = Number(inputField.value);
-            }
-            operation(lastNum, lastOp);
-            inputField.value = buffer;
-            isBuffer = true;
-            break;
-
-          default:
-            lastNum = Number(inputField.value);
-            if (!isBuffer) {
-              operation(lastNum, lastOp);
-            }
-            inputField.value = buffer;
-            bufOp = event.key;
-            isBuffer = true;
-            break;
-        }
-      }
-
-      // очещает поле ввода значений.
-      if (event.key === "Backspace") {
-        buffer = 0;
-        bufOp = "";
-        lastNum = 0;
-        lastOp = "";
-        num = 0;
-        op = "";
-        inputField.value = "0";
-      }
+    if (numbers.includes(event.key)) {
+      inputNumbers (event.key);
+    } else if (action.includes(event.key)) {
+      inputValue (event.key);
+    } else if (event.key === "Backspace") {
+      backSpace();
     }
   });
-
-  
 }
+// ввод с клавиатуры
+

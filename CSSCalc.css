@@ -60,13 +60,13 @@
     text-align: center;
     line-height: 60px;
     font-size: 1.5rem;
-    cursor: pointer;
+    cursor: pointer; /* */ 
     user-select: none;
 }
-/* 
+
 .btn_active{
     border: 1px solid #fff;
-}*/
+}
 /* */
 .btn.zero {
     grid-area: zero;
