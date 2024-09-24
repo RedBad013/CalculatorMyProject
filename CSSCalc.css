@@ -60,7 +60,7 @@
     text-align: center;
     line-height: 60px;
     font-size: 1.5rem;
-    cursor: pointer; /* */ 
+    cursor: pointer; /* Показывает руки  */ 
     user-select: none;
 }
 
